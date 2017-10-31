@@ -10,20 +10,24 @@ from uocontroller.core import exc
 defaults = init_defaults('uocontroller')
 
 # All internal/external plugin configurations are loaded from here
-defaults['uocontroller']['plugin_config_dir'] = '/etc/uocontroller/plugins.d'
+#defaults['uocontroller']['plugin_config_dir'] = '/etc/uocontroller/plugins.d'
+defaults['uocontroller']['plugin_config_dir'] = './plugins'
 
 # External plugins (generally, do not ship with application code)
-defaults['uocontroller']['plugin_dir'] = '/var/lib/uocontroller/plugins'
+#defaults['uocontroller']['plugin_dir'] = '/var/lib/uocontroller/plugins'
+defaults['uocontroller']['plugin_dir'] = './plugins'
 
 # External templates (generally, do not ship with application code)
-defaults['uocontroller']['template_dir'] = '/var/lib/uocontroller/templates'
+#defaults['uocontroller']['template_dir'] = '/var/lib/uocontroller/templates'
+defaults['uocontroller']['template_dir'] = './templates'
 
 
 class UOControllerApp(CementApp):
     class Meta:
         label = 'uocontroller'
         config_defaults = defaults
-
+        # override configuration with commandline options
+        arguments_override_config = True
         # All built-in application bootstrapping (always run)
         bootstrap = 'uocontroller.cli.bootstrap'
 
@@ -35,6 +39,11 @@ class UOControllerApp(CementApp):
 
         # call sys.exit() when app.close() is called
         exit_on_close = True
+
+        extensions = ['mustache', 'json', 'yaml']
+        handler_override_options = dict(
+            output = (['-o'], dict(help='output format')),
+        )
 
 
 class UOControllerTestApp(UOControllerApp):
@@ -58,6 +67,8 @@ def main():
     with app:
         try:
             app.run()
+            data = {"foo": app.pargs.loc}
+            app.render(data, 'default.m')
         
         except exc.UOControllerError as e:
             # Catch our application errors and exit 1 (error)
