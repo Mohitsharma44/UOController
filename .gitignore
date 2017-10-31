@@ -2,3 +2,4 @@ b'# Byte-compiled / optimized / DLL files\n__pycache__/\n*.py[cod]\n*$py.class\n
 
 # Virtual envs
 *venv*/
+*__pycache__*
