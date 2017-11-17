@@ -1,6 +1,8 @@
 """UOController IR controller."""
 
+import os
 import json
+import subprocess
 from cement.ext.ext_argparse import ArgparseController, expose
 from uocontroller.cli.controllers.rpc_client import UOControllerRpcClient
 
@@ -18,20 +20,30 @@ class UOControllerIrController(ArgparseController):
              dict(help="capture command", dest='capture', action='store_true')),
             (['-i', '--every'],
              dict(help="perform action every X seconds", dest='every', action='store',
-                  metavar='String'))
+                  metavar='String')),
+            (['--live', '--live'],
+             dict(help="Open Live Feed to the camera", dest='live', action='store_true'))
             ]
 
     def _generate_data(self):
-        return {"capture": self.app.pargs.capture,
-                "interval": self.app.pargs.every
+        return {
+            "location": self.app.pargs.loc,
+            "capture": self.app.pargs.capture,
+            "interval": self.app.pargs.every,
             }
         
     @expose(hide=True)
     def default(self):
-        rpc_client = UOControllerRpcClient()
+        ir_rpc_client = UOControllerRpcClient(queue_name="uoir_queue")
         print("Inside UOControllerIrController.default().")
         command = self._generate_data()
-        print(rpc_client.call(json.dumps(command)))
+        print(ir_rpc_client.call(json.dumps(command)))
+        if self.app.pargs.live:
+            print("Opening Live Stream ... ")
+            proc = subprocess.Popen(["vlc", "rtsp://{}".format(os.environ['south_ircam_ip'])],
+                                    stdout = subprocess.PIPE,
+                                    stderr = subprocess.PIPE)
+            out, err = proc.communicate()
         # If using an output handler such as 'mustache', you could also
         # render a data dictionary using a template.  For example:
         #
