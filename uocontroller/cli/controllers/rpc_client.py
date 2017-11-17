@@ -5,7 +5,8 @@ import uuid
 import sys
 
 class UOControllerRpcClient(object):
-    def __init__(self):
+    def __init__(self, queue_name):
+        self.queue_name = queue_name
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
         # wait 10 seconds before timing out
         self.connection.add_timeout(10, self.connection_timeout)
@@ -25,7 +26,7 @@ class UOControllerRpcClient(object):
         Called when connection is closed 
         """
         print("Purging all messages from the queue")
-        self.channel.queue_purge(queue='rpc_queue')
+        self.channel.queue_purge(queue=self.queue_name)
             
     def connection_timeout(self):
         """
@@ -50,7 +51,7 @@ class UOControllerRpcClient(object):
         try:
             if self.connection.is_open:
                 self.channel.basic_publish(exchange='',
-                                           routing_key='rpc_queue',
+                                           routing_key=self.queue_name,
                                            properties=pika.BasicProperties(
                                                reply_to=self.callback_queue,
                                                correlation_id=self.corr_id,
@@ -66,14 +67,3 @@ class UOControllerRpcClient(object):
             print("Connection is not Open!")
             sys.exit(1)
 
-"""
-if __name__ == "__main__":
-    start_time = time.time()
-    fibonacci_rpc = FibonacciRpcClient()
-    print(' [x] Requesting fib(30)')
-    for i in range(30, 35):
-        response = fibonacci_rpc.call(i)
-        print(' [.] Got %r' %response)
-    print(' [x] Done.')
-    print("--- %s seconds ---" % (time.time() - start_time))
-"""
