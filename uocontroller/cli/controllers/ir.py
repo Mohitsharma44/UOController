@@ -1,6 +1,8 @@
 """UOController IR controller."""
 
+import json
 from cement.ext.ext_argparse import ArgparseController, expose
+from uocontroller.cli.controllers.rpc_client import UOControllerRpcClient
 
 class UOControllerIrController(ArgparseController):
     class Meta:
@@ -19,12 +21,17 @@ class UOControllerIrController(ArgparseController):
                   metavar='String'))
             ]
 
+    def _generate_data(self):
+        return {"capture": self.app.pargs.capture,
+                "interval": self.app.pargs.every
+            }
+        
     @expose(hide=True)
     def default(self):
+        rpc_client = UOControllerRpcClient()
         print("Inside UOControllerIrController.default().")
-        if self.app.pargs.capture and self.app.pargs.every:
-            print("Starting Capture: ", self.app.pargs.every)
-
+        command = self._generate_data()
+        print(rpc_client.call(json.dumps(command)))
         # If using an output handler such as 'mustache', you could also
         # render a data dictionary using a template.  For example:
         #
