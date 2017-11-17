@@ -27,7 +27,8 @@ class FibonacciRpcClient(object):
         """
         try:
             print("Could not establish connection")
-            self.channel.queue_delete(queue='rpc_queue')
+            #self.channel.queue_delete(queue='rpc_queue')
+            self.channel.queue_purge(queue='rpc_queue')
             self.connection.close()
             return True
         except ConnectionClosed as ex:
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     start_time = time.time()
     fibonacci_rpc = FibonacciRpcClient()
     print(' [x] Requesting fib(30)')
-    for i in range(20, 30):
+    for i in range(30, 35):
         response = fibonacci_rpc.call(i)
         print(' [.] Got %r' %response)
     print(' [x] Done.')
