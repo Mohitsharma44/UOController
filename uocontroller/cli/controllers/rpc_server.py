@@ -1,4 +1,5 @@
 import pika
+import json
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
@@ -13,10 +14,13 @@ def fib(n):
         return fib(n-1) + fib(n-2)
 
 def on_request(ch, method, props, body):
-    n = int(body)
+    print(str(body))
+    n = json.loads(body)
     print(" [.] fib(%s)" %n)
     print("Correlation id: ", props.correlation_id)
-    response = fib(n)
+    print("Received: ", n)
+    response = "Recevied!"
+    #response = fib(n)
     ch.basic_publish(exchange='',
                      routing_key=props.reply_to,
                      properties=pika.BasicProperties(correlation_id=props.correlation_id),
