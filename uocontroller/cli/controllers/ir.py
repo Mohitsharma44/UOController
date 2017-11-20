@@ -44,6 +44,9 @@ class UOControllerIrController(ArgparseController):
         print("Inside UOControllerIrController.default().")
         # Generate Json structured command
         try:
+            if not self.app.pargs.loc:
+                print("You need to pass the location")
+                sys.exit(1)
             command = self._generate_data()
             print(ir_rpc_client.call(json.dumps(command)))
         except Exception as ex:
