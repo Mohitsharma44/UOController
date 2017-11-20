@@ -18,11 +18,15 @@ class UOControllerIrController(ArgparseController):
                   metavar='String') ),
             (['-c', '--capture'],
              dict(help="capture command", dest='capture', action='store_true')),
-            (['-i', '--every'],
-             dict(help="perform action every X seconds", dest='every', action='store',
+            (['--every', '--every'],
+             dict(help="perform capture every X seconds. default is 10s", dest='every', action='store',
                   metavar='String')),
             (['--live', '--live'],
-             dict(help="Open Live Feed to the camera", dest='live', action='store_true'))
+             dict(help="Open Live Feed to the camera", dest='live', action='store_true')),
+            (['-z', '--zoom'],
+             dict(help="Digital Zoom factor between 1 and 8. default is 1", dest='zoom', action='store')),
+            (['-f', '--focus'],
+             dict(help="Focus the IR camera. options=fast or full or <absolute value>", dest='focus', action='store'))
             ]
 
     def _generate_data(self):
@@ -30,20 +34,27 @@ class UOControllerIrController(ArgparseController):
             "location": self.app.pargs.loc,
             "capture": self.app.pargs.capture,
             "interval": self.app.pargs.every,
+            "zoom": self.app.pargs.zoom,
+            "focus": self.app.pargs.focus,
             }
         
     @expose(hide=True)
     def default(self):
         ir_rpc_client = UOControllerRpcClient(queue_name="uoir_queue")
         print("Inside UOControllerIrController.default().")
-        command = self._generate_data()
-        print(ir_rpc_client.call(json.dumps(command)))
+        # Generate Json structured command
+        try:
+            command = self._generate_data()
+            print(ir_rpc_client.call(json.dumps(command)))
+        except Exception as ex:
+            print("Error generating json structured command: ", str(ex))
         if self.app.pargs.live:
             print("Opening Live Stream ... ")
             proc = subprocess.Popen(["vlc", "rtsp://{}".format(os.environ['south_ircam_ip'])],
                                     stdout = subprocess.PIPE,
                                     stderr = subprocess.PIPE)
             out, err = proc.communicate()
+            
         # If using an output handler such as 'mustache', you could also
         # render a data dictionary using a template.  For example:
         #
