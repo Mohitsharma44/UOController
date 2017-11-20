@@ -5,7 +5,10 @@
 
 from uocontroller.cli.controllers.base import UOControllerBaseController
 from uocontroller.cli.controllers.ir import UOControllerIrController
+from uocontroller.cli.controllers.vis import UOControllerVisController
 
 def load(app):
     app.handler.register(UOControllerBaseController)
     app.handler.register(UOControllerIrController)
+    app.handler.register(UOControllerVisController)
+    
