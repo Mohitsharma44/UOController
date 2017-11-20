@@ -2,7 +2,9 @@ import pika
 import json
 
 queue_name = "uoir_queue"
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',
+                                                               heartbeat_interval=600,
+                                                               blocked_connection_timeout=300))
 channel = connection.channel()
 channel.queue_declare(queue=queue_name)
 
