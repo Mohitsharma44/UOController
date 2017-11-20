@@ -67,8 +67,8 @@ def main():
     with app:
         try:
             app.run()
-            data = {"foo": app.pargs.loc}
-            app.render(data, 'default.m')
+            #data = {"foo": app.pargs.loc}
+            #app.render(data, 'default.m')
         
         except exc.UOControllerError as e:
             # Catch our application errors and exit 1 (error)
