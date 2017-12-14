@@ -17,27 +17,43 @@ class UOControllerVisController(ArgparseController):
              dict(help='location of the cameras. e.g 1mtcNorth', dest='loc', action='store',
                   metavar='String') ),
             (['-c', '--capture'],
-             dict(help="capture command", dest='capture', action='store_true')),
+             dict(help="capture command", dest='capture', action='store_true', default=False)),
             (['--every', '--every'],
              dict(help="perform capture every X seconds. default is 10s", dest='every', action='store',
-                  metavar='String')),
+                  metavar='Int', default=-1)),
             (['--live', '--live'],
-             dict(help="Open Live Feed to the camera", dest='live', action='store_true')),
+             dict(help="Open Live Feed to the camera (Not Implemented)", dest='live', action='store_true')),
             (['-f', '--focus'],
-             dict(help="Focus the vis camera camera. options=<absolute value>", dest='focus', action='store'))
+             dict(help="Focus the vis camera camera. options=<absolute value>", dest='focus', action='store',
+                  metavar='float', default=-1)),
+            (['-a', '--aperture'],
+             dict(help="Adjust the aperture of the camera. options=<absolute value>", dest='aper', action='store',
+                  metavar='float', default=-1)),
+            (['-s', '--stop'],
+             dict(help="Abort and Stop acquiring images", dest='stop', action='store_true', default=False)),
+            (['-stat', '--status'],
+             dict(help="Current Status of the camera and its driver", dest='stat', action='store_true', default=False)),
+            (['-e', '--exposure'],
+             dict(help="Adjust the exposure of the camera. options=<absolute value>", dest='exp', action='store',
+                  metavar='float', default=-1))
             ]
 
     def _generate_data(self):
         return {
             "location": self.app.pargs.loc,
             "capture": self.app.pargs.capture,
-            "interval": self.app.pargs.every,
-            "focus": self.app.pargs.focus,
+            "interval": int(self.app.pargs.every),
+            "focus": int(self.app.pargs.focus),
+            "aperture": int(self.app.pargs.aper),
+            "exposure": float(self.app.pargs.exp),
+            "stop": self.app.pargs.stop,
+            "status": self.app.pargs.stat,
             }
         
     @expose(hide=True)
     def default(self):
-        vis_rpc_client = UOControllerRpcClient(queue_name="uovis_queue")
+        #vis_rpc_client = UOControllerRpcClient(queue_name="uovis_queue")
+        vis_rpc_client = UOControllerRpcClient(queue_name="rpc_queue")
         print("Inside UOControllerVisController.default().")
         # Generate Json structured command
         try:
