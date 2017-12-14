@@ -17,7 +17,8 @@ class UOControllerVisController(ArgparseController):
              dict(help='location of the cameras. e.g 1mtcNorth', dest='loc', action='store',
                   metavar='String') ),
             (['-c', '--capture'],
-             dict(help="capture command", dest='capture', action='store_true', default=False)),
+             dict(help="capture X frames (use -1 to capture forever)", dest='capture', action='store',
+                  const=-1, nargs='?', metavar='Int')),
             (['--every', '--every'],
              dict(help="perform capture every X seconds. default is 10s", dest='every', action='store',
                   metavar='Int', default=-1)),
@@ -25,29 +26,29 @@ class UOControllerVisController(ArgparseController):
              dict(help="Open Live Feed to the camera (Not Implemented)", dest='live', action='store_true')),
             (['-f', '--focus'],
              dict(help="Focus the vis camera camera. options=<absolute value>", dest='focus', action='store',
-                  metavar='float', default=-1)),
+                  metavar='float', const=-1, nargs='?')),
             (['-a', '--aperture'],
              dict(help="Adjust the aperture of the camera. options=<absolute value>", dest='aper', action='store',
-                  metavar='float', default=-1)),
+                  metavar='float', const=-1, nargs='?')),
             (['-s', '--stop'],
              dict(help="Abort and Stop acquiring images", dest='stop', action='store_true', default=False)),
             (['-stat', '--status'],
              dict(help="Current Status of the camera and its driver", dest='stat', action='store_true', default=False)),
             (['-e', '--exposure'],
              dict(help="Adjust the exposure of the camera. options=<absolute value>", dest='exp', action='store',
-                  metavar='float', default=-1))
+                  metavar='float', const=-1, nargs='?'))
             ]
 
     def _generate_data(self):
         return {
             "location": self.app.pargs.loc,
-            "capture": self.app.pargs.capture,
+            "capture": int(self.app.pargs.capture),
             "interval": int(self.app.pargs.every),
             "focus": int(self.app.pargs.focus),
             "aperture": int(self.app.pargs.aper),
             "exposure": float(self.app.pargs.exp),
-            "stop": self.app.pargs.stop,
-            "status": self.app.pargs.stat,
+            "stop": bool(self.app.pargs.stop),
+            "status": bool(self.app.pargs.stat),
             }
         
     @expose(hide=True)
