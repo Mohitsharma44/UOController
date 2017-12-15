@@ -18,25 +18,29 @@ class UOControllerVisController(ArgparseController):
                   metavar='String') ),
             (['-c', '--capture'],
              dict(help="capture X frames (use -1 to capture forever)", dest='capture', action='store',
-                  const=-1, nargs='?', metavar='Int')),
+                  default=0, const=0, nargs='?', metavar='Int')),
             (['--every', '--every'],
              dict(help="perform capture every X seconds. default is 10s", dest='every', action='store',
-                  metavar='Int', default=-1)),
+                  metavar='Int', default=0, const=0, nargs='?')),
             (['--live', '--live'],
              dict(help="Open Live Feed to the camera (Not Implemented)", dest='live', action='store_true')),
             (['-f', '--focus'],
              dict(help="Focus the vis camera camera. options=<absolute value>", dest='focus', action='store',
-                  metavar='float', const=-1, nargs='?')),
+                  metavar='float', default=-1, const=-1, nargs='?')),
             (['-a', '--aperture'],
              dict(help="Adjust the aperture of the camera. options=<absolute value>", dest='aper', action='store',
-                  metavar='float', const=-1, nargs='?')),
+                  metavar='float', default=-1, const=-1, nargs='?')),
             (['-s', '--stop'],
-             dict(help="Abort and Stop acquiring images", dest='stop', action='store_true', default=False)),
+             dict(help="Abort and Stop acquiring images", dest='stop', action='store_true', default=0)),
             (['-stat', '--status'],
              dict(help="Current Status of the camera and its driver", dest='stat', action='store_true', default=False)),
             (['-e', '--exposure'],
              dict(help="Adjust the exposure of the camera. options=<absolute value>", dest='exp', action='store',
-                  metavar='float', const=-1, nargs='?'))
+                  metavar='float', default=-1, const=-1, nargs='?')),
+            (['--kill', '--kill'],
+             dict(help="""This will kill the code driving the camera on the remote end. Make sure you do want to 
+             do this. There is a chance that the driving code will be restarted automatically but cannot be 
+             guaranteed.""", dest='kill', action='store', default='', metavar='String')),
             ]
 
     def _generate_data(self):
@@ -49,6 +53,7 @@ class UOControllerVisController(ArgparseController):
             "exposure": float(self.app.pargs.exp),
             "stop": bool(self.app.pargs.stop),
             "status": bool(self.app.pargs.stat),
+            "kill": str(self.app.pargs.kill)
             }
         
     @expose(hide=True)
