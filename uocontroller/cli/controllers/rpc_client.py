@@ -5,9 +5,12 @@ import uuid
 import sys
 
 class UOControllerRpcClient(object):
-    def __init__(self, queue_name):
+    def __init__(self, vhost, queue_name):
         self.queue_name = queue_name
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        #self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        credentials = pika.PlainCredentials('acapulco', 'acapulco')
+        #self.connection = pika.BlockingConnection(pika.ConnectionParameters('172.22.72.53', 5672, '/', credentials))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('172.22.72.53', 5672, vhost, credentials))
         # wait 10 seconds before timing out
         self.connection.add_timeout(10, self.connection_timeout)
         self.channel = self.connection.channel()
