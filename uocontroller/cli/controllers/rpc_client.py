@@ -3,14 +3,15 @@ from pika.exceptions import ConnectionClosed
 import time
 import uuid
 import sys
+import os
 
 class UOControllerRpcClient(object):
     def __init__(self, vhost, queue_name):
         self.queue_name = queue_name
-        #self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-        credentials = pika.PlainCredentials('acapulco', 'acapulco')
-        #self.connection = pika.BlockingConnection(pika.ConnectionParameters('172.22.72.53', 5672, '/', credentials))
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters('172.22.72.53', 5672, vhost, credentials))
+        credentials = pika.PlainCredentials(os.getenv("uo_rpc_user"), os.getenv("uo_rpc_pass"))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(os.getenv("uo_rpc_host"),
+                                                                            os.getenv("uo_rpc_port"),
+                                                                            vhost, credentials))
         # wait 10 seconds before timing out
         self.connection.add_timeout(10, self.connection_timeout)
         self.channel = self.connection.channel()
