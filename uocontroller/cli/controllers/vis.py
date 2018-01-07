@@ -14,8 +14,8 @@ class UOControllerVisController(ArgparseController):
         stacked_type = 'nested'
         arguments = [
             (['-l', '--loc'],
-             dict(help='location of the cameras. e.g 1mtcNorth', dest='loc', action='store',
-                  metavar='String') ),
+             dict(help='location of the cameras. e.g: \n\t 1mtcNorth \n\t 1mtcSouth \n\t 370Roof(WIP) \n\t test(WIP)',
+                  dest='loc', action='store', metavar='String') ),
             (['-c', '--capture'],
              dict(help="capture X frames (use -1 to capture forever)", dest='capture', action='store',
                   default=0, const=0, nargs='?', metavar='Int')),
