@@ -9,7 +9,7 @@ class UOControllerRpcClient(object):
     def __init__(self, vhost, queue_name):
         self.queue_name = queue_name
         credentials = pika.PlainCredentials(os.getenv("uo_rpc_user"), os.getenv("uo_rpc_pass"))
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(os.getenv("uo_rpc_host"),
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(os.getenv("uo_rpc_server"),
                                                                             os.getenv("uo_rpc_port"),
                                                                             vhost, credentials))
         # wait 10 seconds before timing out
