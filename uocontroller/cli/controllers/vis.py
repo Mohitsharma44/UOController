@@ -4,9 +4,11 @@ import os
 import ast
 import sys
 import json
-from colorama import Fore, Back, Style
+from colorama import init, Fore, Back, Style
 from cement.ext.ext_argparse import ArgparseController, expose
 from uocontroller.cli.controllers.rpc_client import UOControllerRpcClient
+
+init(autoreset=True)
 
 known_vis_queues = {
         "1mtcNorth": "1mtcNorth_vis_queue",
@@ -78,6 +80,7 @@ class UOControllerVisController(ArgparseController):
 
         print("Inside UOControllerVisController.default().")
         # Generate Json structured command
+        print(Fore.BLUE + "=="*30)
         try:
             if not self.app.pargs.loc:
                 print("You need to pass the location")
@@ -87,11 +90,17 @@ class UOControllerVisController(ArgparseController):
             try:
                 #print(response)
                 json_response = ast.literal_eval(response.strip("b'"))
-                print(json.dumps(json_response, indent=4))
+                #print(json.dumps(json_response, indent=4))
+                for (k, v) in json_response.items():
+                    if "err" in k:
+                        print("{0: <16}==>{1}{2: >16}".format(k, Fore.RED, v))
+                    else:
+                        print("{0: <16}==>{1: >16}".format(k, v))
             except Exception as ex:
                 print(ex)
         except Exception as ex:
             print("Error generating json structured command: ", str(ex))
+        print(Fore.BLUE + "=="*30)
         if self.app.pargs.live:
             print("Feture not implemented ... ")
 
