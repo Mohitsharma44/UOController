@@ -1,6 +1,7 @@
 """UOController IR controller."""
 
 import os
+import ast
 import json
 import subprocess
 from cement.ext.ext_argparse import ArgparseController, expose
@@ -78,7 +79,13 @@ class UOControllerIrController(ArgparseController):
                 print("You need to pass the location")
                 sys.exit(1)
             command = self._generate_data()
-            print(ir_rpc_client.call(json.dumps(command)))
+            response = ir_rpc_client.call(json.dumps(command))
+            try:
+                json_response = ast.literal_eval(response.strip('b"'))
+                #print(json_response)
+                print(json.dumps(json_response, indent=4))
+            except Exception as ex:
+                print(ex)
         except Exception as ex:
             print("Error generating json structured command: ", str(ex))
         if self.app.pargs.live:
