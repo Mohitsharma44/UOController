@@ -1,8 +1,10 @@
 """UOController Vis controller."""
 
 import os
+import ast
 import sys
 import json
+from colorama import Fore, Back, Style
 from cement.ext.ext_argparse import ArgparseController, expose
 from uocontroller.cli.controllers.rpc_client import UOControllerRpcClient
 
@@ -83,11 +85,11 @@ class UOControllerVisController(ArgparseController):
             command = self._generate_data()
             response = vis_rpc_client.call(json.dumps(command))
             try:
-                json_response = json.loads(response.strip("b'"))
-                #print(json_response)
+                #print(response)
+                json_response = ast.literal_eval(response.strip("b'"))
                 print(json.dumps(json_response, indent=4))
             except Exception as ex:
-                print(response)
+                print(ex)
         except Exception as ex:
             print("Error generating json structured command: ", str(ex))
         if self.app.pargs.live:
