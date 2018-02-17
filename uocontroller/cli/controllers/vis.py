@@ -6,6 +6,16 @@ import json
 from cement.ext.ext_argparse import ArgparseController, expose
 from uocontroller.cli.controllers.rpc_client import UOControllerRpcClient
 
+known_vis_queues = {
+        "1mtcNorth": "1mtcNorth_vis_queue",
+        "1mtcSouth": "1mtcSouth_vis_queue",
+        "370Roof"  : "370Roof_vis_queue",
+        "test"     : "test_vis_queue"
+    }
+
+class QueueNameException(Exception):
+    pass
+
 class UOControllerVisController(ArgparseController):
     class Meta:
         label = 'VIS'
@@ -38,8 +48,8 @@ class UOControllerVisController(ArgparseController):
              dict(help="Adjust the exposure of the camera. options=<absolute value>", dest='exp', action='store',
                   metavar='float', default=-1, const=-1, nargs='?')),
             (['--kill', '--kill'],
-             dict(help="""This will kill the code driving the camera on the remote end. Make sure you do want to 
-             do this. There is a chance that the driving code will be restarted automatically but cannot be 
+             dict(help="""This will kill the code driving the camera on the remote end. Make sure you do want to
+             do this. There is a chance that the driving code will be restarted automatically but cannot be
              guaranteed.""", dest='kill', action='store', default='', metavar='String')),
             ]
 
@@ -55,11 +65,15 @@ class UOControllerVisController(ArgparseController):
             "status": bool(self.app.pargs.stat),
             "kill": str(self.app.pargs.kill)
             }
-        
+
     @expose(hide=True)
     def default(self):
-        #vis_rpc_client = UOControllerRpcClient(queue_name="uovis_queue")
-        vis_rpc_client = UOControllerRpcClient(queue_name="rpc_queue")
+        if not self.app.pargs.loc in known_vis_queues.keys():
+            raise QueueNameException("Check the location name format!!")
+        
+        vis_rpc_client = UOControllerRpcClient(vhost="/vis",
+                                               queue_name=known_vis_queues[self.app.pargs.loc])
+
         print("Inside UOControllerVisController.default().")
         # Generate Json structured command
         try:
@@ -67,12 +81,18 @@ class UOControllerVisController(ArgparseController):
                 print("You need to pass the location")
                 sys.exit(1)
             command = self._generate_data()
-            print(vis_rpc_client.call(json.dumps(command)))
+            response = vis_rpc_client.call(json.dumps(command))
+            try:
+                json_response = json.loads(response.strip("b'"))
+                #print(json_response)
+                print(json.dumps(json_response, indent=4))
+            except Exception as ex:
+                print(response)
         except Exception as ex:
             print("Error generating json structured command: ", str(ex))
         if self.app.pargs.live:
             print("Feture not implemented ... ")
-            
+
         # If using an output handler such as 'mustache', you could also
         # render a data dictionary using a template.  For example:
         #
