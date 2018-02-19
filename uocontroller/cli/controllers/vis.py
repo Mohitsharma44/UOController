@@ -93,11 +93,18 @@ class UOControllerVisController(ArgparseController):
                 #print(json.dumps(json_response, indent=4))
                 for (k, v) in json_response.items():
                     if "err" in k:
-                        print("{0: <16}==>{1}{2: >16}".format(k, Fore.RED, v))
+                        print("{0: <16}==>{1}{2: ^16}".format(k, Fore.RED, v))
+                    elif "capture" == k:
+                        if v == -1:
+                            print("{0: <16}==>{1}{2: ^16}".format(k, Fore.GREEN, "Continuous"))
+                        elif v == 0:
+                            print("{0: <16}==>{1: ^16}".format(k, "(Not Live)"))
+                        else:
+                            print("{0: <16}==>{1}{2: ^16}(Remaining)".format(k, Fore.GREEN, v))
                     else:
-                        print("{0: <16}==>{1: >16}".format(k, v))
+                        print("{0: <16}==>{1: ^16}".format(k, v))
             except Exception as ex:
-                print(ex)
+                print(response)
         except Exception as ex:
             print("Error generating json structured command: ", str(ex))
         print(Fore.BLUE + "=="*30)
