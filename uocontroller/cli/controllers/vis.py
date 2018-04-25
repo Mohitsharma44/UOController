@@ -10,11 +10,18 @@ from uocontroller.cli.controllers.rpc_client import UOControllerRpcClient
 
 init(autoreset=True)
 
+#known_vis_queues = {
+#        "1mtcNorth": "1mtcNorth_vis_queue",
+#        "1mtcSouth": "1mtcSouth_vis_queue",
+#        "370Roof"  : "370Roof_vis_queue",
+#        "test"     : "test_vis_queue"
+#    }
+
 known_vis_queues = {
-        "1mtcNorth": "1mtcNorth_vis_queue",
-        "1mtcSouth": "1mtcSouth_vis_queue",
-        "370Roof"  : "370Roof_vis_queue",
-        "test"     : "test_vis_queue"
+    "1mtcNorth": "1mtcNorth",
+    "1mtcSouth": "1mtcSouth",
+    "370Roof"  : "370Roof",
+    "test"     : "test"
     }
 
 class QueueNameException(Exception):
