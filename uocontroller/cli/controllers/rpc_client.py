@@ -29,7 +29,7 @@ class UOControllerRpcClient(object):
         """
         Called when connection is closed 
         """
-        print("Purging all messages from the queue")
+        #print("Purging all messages from the queue")
         self.channel.queue_purge(queue=self.queue_name)
             
     def connection_timeout(self):
@@ -51,7 +51,7 @@ class UOControllerRpcClient(object):
     def call(self, command):
         self.response = None
         self.corr_id = str(uuid.uuid4())
-        print('Correlation Id: ', self.corr_id)
+        #print('Correlation Id: ', self.corr_id)
         try:
             if self.connection.is_open:
                 self.channel.basic_publish(exchange='',
@@ -69,5 +69,5 @@ class UOControllerRpcClient(object):
                 return None
         except ConnectionClosed as cc:
             print("Connection is not Open!")
-            sys.exit(1)
+            #sys.exit(1)
 
