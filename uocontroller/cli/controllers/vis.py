@@ -18,10 +18,10 @@ init(autoreset=True)
 #    }
 
 known_vis_queues = {
-    "1mtcNorth": "1mtcNorth",
-    "1mtcSouth": "1mtcSouth",
-    "370Roof"  : "370Roof",
-    "test"     : "test"
+    "1mtcNorth": {"cam": "1mtcNorth", "watchdog": "1mtcNorth_watchdog"},
+    "1mtcSouth": {"cam": "1mtcSouth", "watchdog": "1mtcSouth_watchdog"},
+    "370Roof"  : {"cam": "370Roof", "watchdog": "370Roof_watchdog"},
+    "test"     : {"cam": "test", "watchdog": "test_watchdog"},
     }
 
 class QueueNameException(Exception):
@@ -82,8 +82,10 @@ class UOControllerVisController(ArgparseController):
         if not self.app.pargs.loc in known_vis_queues.keys():
             raise QueueNameException("Check the location name format!!")
         
-        vis_rpc_client = UOControllerRpcClient(vhost="/vis",
-                                               queue_name=known_vis_queues[self.app.pargs.loc])
+        vis_cam_rpc_client = UOControllerRpcClient(vhost="/vis",
+                                               queue_name=known_vis_queues[self.app.pargs.loc]["cam"])
+        vis_watchdog_rpc_client = UOControllerRpcClient(vhost="/vis",
+                                                        queue_name=known_vis_queues[self.app.pargs.loc]["watchdog"])
 
         print("Inside UOControllerVisController.default().")
         # Generate Json structured command
@@ -93,25 +95,37 @@ class UOControllerVisController(ArgparseController):
                 print("You need to pass the location")
                 sys.exit(1)
             command = self._generate_data()
-            response = vis_rpc_client.call(json.dumps(command))
+            cam_response = vis_cam_rpc_client.call(json.dumps(command))
             try:
                 #print(response)
-                json_response = ast.literal_eval(response.strip("b'"))
+                json_cam_response = ast.literal_eval(cam_response.strip("b'"))
                 #print(json.dumps(json_response, indent=4))
-                for (k, v) in json_response.items():
-                    if "err" in k:
-                        print("{0: <16}==>{1}{2: ^16}".format(k, Fore.RED, v))
-                    elif "capture" == k:
-                        if v == -1:
-                            print("{0: <16}==>{1}{2: ^16}".format(k, Fore.GREEN, "Continuous"))
-                        elif v == 0:
-                            print("{0: <16}==>{1: ^16}".format(k, "(Not Live)"))
+                try:
+                    for (k, v) in json_cam_response.items():
+                        if "err" in k:
+                            print("{0: <16}==>{1}{2: ^16}".format(k, Fore.RED, v))
+                        elif "capture" == k:
+                            if v == -1:
+                                print("{0: <16}==>{1}{2: ^16}".format(k, Fore.GREEN, "Continuous"))
+                            elif v == 0:
+                                print("{0: <16}==>{1: ^16}".format(k, "(Not Live)"))
+                            else:
+                                print("{0: <16}==>{1}{2: ^16}(Remaining)".format(k, Fore.GREEN, v))
                         else:
-                            print("{0: <16}==>{1}{2: ^16}(Remaining)".format(k, Fore.GREEN, v))
-                    else:
-                        print("{0: <16}==>{1: ^16}".format(k, v))
+                            print("{0: <16}==>{1: ^16}".format(k, v))
+                except Exception as ex:
+                    print(cam_response)
             except Exception as ex:
-                print(response)
+                pass
+            finally:
+                try:
+                    watchdog_response = vis_watchdog_rpc_client.call(json.dumps(command))
+                    print()
+                    print("==Watchdog==")
+                    print(watchdog_response)
+                    #json_watchdog_response = ast.literal_eval(watchdog_response.strip("b'"))
+                except Exception as ex:
+                    print("Error sending RPC request to watchdog: "+str(ex))
         except Exception as ex:
             print("Error generating json structured command: ", str(ex))
         print(Fore.BLUE + "=="*30)
